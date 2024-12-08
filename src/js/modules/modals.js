@@ -23,6 +23,8 @@ const modals = () => {
                 modal.style.display = 'block'
                 document.body.style.overflow = 'hidden'
                 document.body.style.marginRight = `${scroll}px`
+                document.querySelector('.fixed-gift').style.right = `${scroll + 19.5}px`
+                // document.querySelector('.fixed-gift').style.right = `${scroll}px`
             })
         })
 
@@ -35,6 +37,7 @@ const modals = () => {
             modal.style.display = 'none'
             document.body.style.overflow = ''
             document.body.style.marginRight = `0px`
+            document.querySelector('.fixed-gift').style.right = `2rem`
         })
 
         modal.addEventListener('click', (e) => {
@@ -46,6 +49,7 @@ const modals = () => {
                 modal.style.display = 'none'
                 document.body.style.overflow = ''
                 document.body.style.marginRight = `0px`
+                document.querySelector('.fixed-gift').style.right = `2rem`
             }
         })
     }
