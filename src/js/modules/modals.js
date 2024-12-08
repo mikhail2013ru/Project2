@@ -1,5 +1,6 @@
 const modals = () => {
-    function bindModal(triggerSelector, modalSelector, closeSelector, closeClickOverlay = true) {
+    let btnPressed = false;
+    function bindModal(triggerSelector, modalSelector, closeSelector, destroy = false) {
         const trigger = document.querySelectorAll(triggerSelector),
             modal = document.querySelector(modalSelector),
             close = document.querySelector(closeSelector),
@@ -8,20 +9,15 @@ const modals = () => {
 
         trigger.forEach(item => {
             item.addEventListener('click', (e) => {
-                // console.log(e.target);
-                // e.target.classList.add('active-modal')
-                // modal.style.display = 'block'
-                // e.target.classList.contains('popup_calc_btn')
-                // if (!e.target.classList.contains('active-modal')) {
-                //     console.log(e.target.classList);
-                //     console.log(item);
-                //     console.log(e.target);
-                //     // e.preventDefault()
-                // } else {
-                //     // e.target.classList.add('active-modal')
-                // }
+                if (destroy) {
+                    item.remove()
+                }
+
+                btnPressed = true
+
                 windows.forEach(item => {
                     item.style.display = 'none'
+                    item.classList.add('animated', 'fadeIn')
                 })
                 
                 modal.style.display = 'block'
@@ -42,9 +38,8 @@ const modals = () => {
         })
 
         modal.addEventListener('click', (e) => {
-            if (e.target === modal && closeClickOverlay) {
+            if (e.target === modal) {
                 windows.forEach(item => {
-                    console.log(item);
                     item.style.display = 'none'
                 })
 
@@ -120,14 +115,32 @@ const modals = () => {
             if (!display ) {
                 document.querySelector(selector).style.display = 'block'
                 document.body.style.overflow = 'hidden'
+                let scroll = calcScroll()
+                document.body.style.marginRight = `${scroll}px`
             }
             
         }, time)
     }
 
-    showModalByTime('.popup-consultation', 5000)
+    function openByScroll(selector) {
+        window.addEventListener('scroll', () => {
+            let scrollHeight = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight)
+            if (!btnPressed && (window.pageYOffset + document.documentElement.clientHeight >=
+                scrollHeight)) {
+                document.querySelector(selector).click()
+            }
+            // if (!btnPressed && (window.pageYOffset + document.documentElement.clientHeight >=
+            // document.documentElement.scrollHeight)) {
+            //     document.querySelector(selector).click()
+            // }
+        })
+    }
+
+    // showModalByTime('.popup-consultation', 5000)
     bindModal('.button-design', '.popup-design', '.popup-design .popup-close')
     bindModal('.button-consultation', '.popup-consultation', '.popup-consultation .popup-close')
+    bindModal('.fixed-gift', '.popup-gift', '.popup-gift .popup-close', true)
+    openByScroll('.fixed-gift')
 }
 
 export default modals
