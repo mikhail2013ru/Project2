@@ -1,7 +1,7 @@
 const sliders = (slides, dir, prev, next) => {
     let slideIndex = 1,
         paused = false;
-    const items = document.querySelectorAll(slides);        
+    const items = document.querySelectorAll(slides);     
 
     function showSlides(n) {
         if (n > items.length) {
