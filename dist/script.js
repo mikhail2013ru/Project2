@@ -614,9 +614,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var core_js_modules_es_string_replace__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! core-js/modules/es.string.replace */ "./node_modules/core-js/modules/es.string.replace.js");
-/* harmony import */ var core_js_modules_es_string_replace__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_string_replace__WEBPACK_IMPORTED_MODULE_0__);
-
 const scrolling = upSelector => {
   const upElem = document.querySelector(upSelector);
   window.addEventListener('scroll', () => {
@@ -628,47 +625,91 @@ const scrolling = upSelector => {
       upElem.classList.remove('fadeIn');
     }
   });
-  const element = document.documentElement,
-    body = document.body;
-  const calcScroll = () => {
-    upElem.addEventListener('click', function (event) {
-      let scrollTop = Math.round(body.scrollTop || element.scrollTop);
-      if (this.hash !== '') {
-        event.preventDefault();
-        // let hashElement = document.getElementById(this.hash.substring(1))
-        let hashElement = document.querySelector(this.hash),
-          hashElementTop = 0;
-        while (hashElement.offsetParent) {
-          hashElementTop += hashElement.offsetTop;
-          hashElement = hashElement.offsetParent;
+
+  // Scrolling with raf
+
+  let links = document.querySelectorAll('[href^="#"]'),
+    speed = 0.3;
+  links.forEach(link => {
+    link.addEventListener('click', function (event) {
+      event.preventDefault();
+      let widthTop = document.documentElement.scrollTop,
+        hash = this.hash,
+        toBlock = document.querySelector(hash).getBoundingClientRect().top,
+        start = null;
+      requestAnimationFrame(step);
+      function step(time) {
+        //функция рекурсивно сама себя запускает, пока не выполнится условие и пока не остановится анимация
+        if (start === null) {
+          start = time;
         }
-        hashElementTop = Math.round(hashElementTop);
-        smoothScroll(scrollTop, hashElementTop, this.hash);
+        let progress = time - start,
+          r = toBlock < 0 ? Math.max(widthTop - progress / speed, widthTop + toBlock) : Math.min(widthTop + progress / speed, widthTop + toBlock);
+        //на сколько пикселей двигаем анимацию и в какую сторону
+
+        document.documentElement.scrollTo(0, r);
+        //скролим страницу к определённым координатам
+
+        //Когда наша анимация должна остановиться?
+        if (r != widthTop + toBlock) {
+          requestAnimationFrame(step);
+        } else {
+          location.hash = hash;
+        }
       }
     });
-  };
-  const smoothScroll = (from, to, hash) => {
-    let timeInterval = 1,
-      prevScrollTop,
-      speed;
-    if (to > from) {
-      speed = 30;
-    } else {
-      speed = -30;
-    }
-    let move = setInterval(function () {
-      let scrollTop = Math.round(body.scrollTop || element.scrollTop);
-      if (prevScrollTop === scrollTop || to > from && scrollTop >= to || to < from && scrollTop <= to) {
-        clearInterval(move);
-        history.replaceState(history.state, document.title, location.href.replace(/#.*$/g, '') + hash);
-      } else {
-        body.scrollTop += speed;
-        element.scrollTop += speed;
-        prevScrollTop = scrollTop;
-      }
-    }, timeInterval);
-  };
-  calcScroll();
+  });
+
+  // Pure js scrolling
+  // const element = document.documentElement,
+  //       body = document.body;
+
+  // const calcScroll = () => {
+  //     upElem.addEventListener('click', function(event) {
+  //         let scrollTop = Math.round(body.scrollTop || element.scrollTop)
+
+  //         if (this.hash !== '') {
+  //             event.preventDefault()
+  //             // let hashElement = document.getElementById(this.hash.substring(1))
+  //             let hashElement = document.querySelector(this.hash),
+  //                 hashElementTop = 0;
+  //             while (hashElement.offsetParent) {
+  //                 hashElementTop += hashElement.offsetTop;
+  //                 hashElement = hashElement.offsetParent;
+  //             }
+
+  //             hashElementTop = Math.round(hashElementTop);
+  //             smoothScroll(scrollTop, hashElementTop, this.hash);
+  //         }
+  //     })
+  // }
+
+  // const smoothScroll = (from, to, hash) => {
+  //     let timeInterval = 1,
+  //         prevScrollTop,
+  //         speed;
+
+  //     if (to > from) {
+  //         speed = 30;
+  //     } else {
+  //         speed = -30;
+  //     }
+
+  //     let move = setInterval(function() {
+  //         let scrollTop = Math.round(body.scrollTop || element.scrollTop)
+
+  //         if ((prevScrollTop === scrollTop || (to > from && scrollTop >= to) || (to < from && scrollTop <= to))) {
+  //             clearInterval(move)
+  //             history.replaceState(history.state, document.title, location.href.replace(/#.*$/g, '') + hash)
+  //         } else {
+  //             body.scrollTop += speed;
+  //             element.scrollTop += speed;
+  //             prevScrollTop = scrollTop
+  //         }
+  //     }, timeInterval)
+  // }
+
+  // calcScroll()
 };
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (scrolling);
 

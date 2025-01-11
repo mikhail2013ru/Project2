@@ -10,55 +10,95 @@ const scrolling = (upSelector) => {
         }
     })
 
-    const element = document.documentElement,
-          body = document.body;
+    // Scrolling with raf
 
-    const calcScroll = () => {
-        upElem.addEventListener('click', function(event) {
-            let scrollTop = Math.round(body.scrollTop || element.scrollTop)
+    let links = document.querySelectorAll('[href^="#"]'),
+        speed = 0.3;
 
-            if (this.hash !== '') {
-                event.preventDefault()
-                // let hashElement = document.getElementById(this.hash.substring(1))
-                let hashElement = document.querySelector(this.hash),
-                    hashElementTop = 0;
-                while (hashElement.offsetParent) {
-                    hashElementTop += hashElement.offsetTop;
-                    hashElement = hashElement.offsetParent;
+    links.forEach(link => {
+        link.addEventListener('click', function(event) {
+            event.preventDefault()
+            let widthTop = document.documentElement.scrollTop,
+                hash = this.hash,
+                toBlock = document.querySelector(hash).getBoundingClientRect().top,
+                start = null;
+
+            requestAnimationFrame(step);
+
+            function step(time) {
+                //функция рекурсивно сама себя запускает, пока не выполнится условие и пока не остановится анимация
+                if (start === null) {
+                    start = time;
                 }
 
-                hashElementTop = Math.round(hashElementTop);
-                smoothScroll(scrollTop, hashElementTop, this.hash);
+                let progress = time - start,
+                    r = (toBlock < 0 ? Math.max(widthTop - progress/speed, widthTop + toBlock) 
+                    : Math.min(widthTop + progress/speed, widthTop + toBlock));
+                    //на сколько пикселей двигаем анимацию и в какую сторону
+
+                    document.documentElement.scrollTo(0, r);
+                    //скролим страницу к определённым координатам
+
+                //Когда наша анимация должна остановиться?
+                if (r != widthTop + toBlock) {
+                    requestAnimationFrame(step)
+                } else {
+                    location.hash = hash;
+                }
             }
         })
-    }
+    })
 
-    const smoothScroll = (from, to, hash) => {
-        let timeInterval = 1,
-            prevScrollTop,
-            speed;
+    // Pure js scrolling
+    // const element = document.documentElement,
+    //       body = document.body;
 
-        if (to > from) {
-            speed = 30;
-        } else {
-            speed = -30;
-        }
+    // const calcScroll = () => {
+    //     upElem.addEventListener('click', function(event) {
+    //         let scrollTop = Math.round(body.scrollTop || element.scrollTop)
 
-        let move = setInterval(function() {
-            let scrollTop = Math.round(body.scrollTop || element.scrollTop)
+    //         if (this.hash !== '') {
+    //             event.preventDefault()
+    //             // let hashElement = document.getElementById(this.hash.substring(1))
+    //             let hashElement = document.querySelector(this.hash),
+    //                 hashElementTop = 0;
+    //             while (hashElement.offsetParent) {
+    //                 hashElementTop += hashElement.offsetTop;
+    //                 hashElement = hashElement.offsetParent;
+    //             }
 
-            if ((prevScrollTop === scrollTop || (to > from && scrollTop >= to) || (to < from && scrollTop <= to))) {
-                clearInterval(move)
-                history.replaceState(history.state, document.title, location.href.replace(/#.*$/g, '') + hash)
-            } else {
-                body.scrollTop += speed;
-                element.scrollTop += speed;
-                prevScrollTop = scrollTop
-            }
-        }, timeInterval)
-    }
+    //             hashElementTop = Math.round(hashElementTop);
+    //             smoothScroll(scrollTop, hashElementTop, this.hash);
+    //         }
+    //     })
+    // }
 
-    calcScroll()
+    // const smoothScroll = (from, to, hash) => {
+    //     let timeInterval = 1,
+    //         prevScrollTop,
+    //         speed;
+
+    //     if (to > from) {
+    //         speed = 30;
+    //     } else {
+    //         speed = -30;
+    //     }
+
+    //     let move = setInterval(function() {
+    //         let scrollTop = Math.round(body.scrollTop || element.scrollTop)
+
+    //         if ((prevScrollTop === scrollTop || (to > from && scrollTop >= to) || (to < from && scrollTop <= to))) {
+    //             clearInterval(move)
+    //             history.replaceState(history.state, document.title, location.href.replace(/#.*$/g, '') + hash)
+    //         } else {
+    //             body.scrollTop += speed;
+    //             element.scrollTop += speed;
+    //             prevScrollTop = scrollTop
+    //         }
+    //     }, timeInterval)
+    // }
+
+    // calcScroll()
 }
 
 export default scrolling
